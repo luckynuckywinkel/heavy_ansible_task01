@@ -1,6 +1,6 @@
 ---
   - name: Print os facts
-    hosts: ubuntu, centos7, localhost
+    hosts: all
    # become: yes
    # become_user: root
     tasks:
