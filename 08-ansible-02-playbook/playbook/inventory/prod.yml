@@ -2,4 +2,6 @@
 clickhouse:
   hosts:
     clickhouse-01:
-      ansible_host: <IP_here>
+      ansible_host: 192.168.29.201
+      ansible_user: vagrant
+      ansible_ssh_private_key_file: /home/vagrant/homeworks/08-ansible-02-playbook/playbook/ykey
