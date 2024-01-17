@@ -1,7 +1,7 @@
 ---
 - name: Install Clickhouse
   hosts: clickhouse
-  handlers:
+  handlers: # хэндлер для перезагрузки кликхаус-сервиса
     - name: Start clickhouse service
       become: true
       ansible.builtin.service:
@@ -9,25 +9,25 @@
         state: restarted
   tasks:
     - block:
-        - name: Get clickhouse distrib
+        - name: Get clickhouse distrib # Здесь скачиваем дистрибутивы клиента и сервера кликхаус, используем переменные
           ansible.builtin.get_url:
             url: "https://packages.clickhouse.com/rpm/stable/{{ item }}-{{ clickhouse_version }}.noarch.rpm"
-            dest: "./{{ item }}-{{ clickhouse_version }}.rpm"
+            dest: "./{{ item }}-{{ clickhouse_version }}.rpm" # кладем в домашний каталог
           with_items: "{{ clickhouse_packages }}"
           
-        - name: Get common-static distrib
+        - name: Get common-static distrib # выделил в отдельный плэй, т.к. все валилось с флагом --check
           ansible.builtin.get_url:
             url: "https://packages.clickhouse.com/rpm/stable/{{ item }}-{{ clickhouse_version }}.x86_64.rpm"
             dest: "./{{ item }}-{{ clickhouse_version }}.rpm"
-            timeout: 300
+            timeout: 300 # Поставил таймаут, т.к. там больше 200Мб и плэйбук валился у меня
           with_items: "{{ common_static }}"
           
-        - name: get clickhouse GPG-key
+        - name: get clickhouse GPG-key # Здесь я экспериментировал с подсовыванием гпг-ключа...
           ansible.builtin.get_url:
             url: "https://repo.clickhouse.com/CLICKHOUSE-KEY.GPG"
             dest: "./CLICKHOUSE-KEY.GPG"
             
-        - name: Import ClickHouse GPG key
+        - name: Import ClickHouse GPG key # Пытался импортировать ключ
           become: true
           ansible.builtin.command:
             cmd: "rpm --import CLICKHOUSE-KEY.GPG"
@@ -36,10 +36,11 @@
       #    ansible.builtin.get_url:
       #      url: "https://packages.clickhouse.com/rpm/stable/clickhouse-common-static-{{ clickhouse_version }}.x86_64.rpm"
       #      dest: "./clickhouse-common-static-{{ clickhouse_version }}.rpm"
-
+      # Закомментил этот блок, т.к. сделал другой, когда у меня все валилось на чеке. В целом, можно было раскомментить и поставить в плэе выше .noarch.rpm и resue отработал бы 
+ 
  - name: Install clickhouse packages
       become: true
-      ansible.builtin.command: >
+      ansible.builtin.command: > # Сдался м гпг-ключом и сделал вот так
         yum install -y --nogpgcheck
         clickhouse-common-static-{{ clickhouse_version }}.rpm
         clickhouse-client-{{ clickhouse_version }}.rpm
@@ -49,12 +50,12 @@
       #    - clickhouse-common-static-{{ clickhouse_version }}.rpm
       #    - clickhouse-client-{{ clickhouse_version }}.rpm
       #    - clickhouse-server-{{ clickhouse_version }}.rpm
-      #  extra_args: "--nogpgcheck"
-      notify: Start clickhouse service
+      #  extra_args: "--nogpgcheck" # Неудачная попытка ввести аргумент :)
+      notify: Start clickhouse service # Используем хэндлер
     - name: Flush handlers
       meta: flush_handlers
     - name: Create database
-      ansible.builtin.command: "clickhouse-client -q 'create database logs;'"
+      ansible.builtin.command: "clickhouse-client -q 'create database logs;'" # Тут все понятно
       register: create_db
       failed_when: create_db.rc != 0 and create_db.rc !=82
       changed_when: create_db.rc == 0
@@ -63,20 +64,30 @@
 - name: Install Vector
   hosts: clickhouse
   become: true
-  handlers:
+  handlers: # Хэндлер для рестарта вектора
     - name: Restart Vector
       ansible.builtin.service:
         name: vector
         state: restarted
 
   tasks:
-    - name: Get Vector distrib
+    - name: Get Vector distrib # Сначала пошел не по тому пути и хотел все сделать через архивы, но сделал проще
       ansible.builtin.get_url:
         url: "https://packages.timber.io/vector/{{ vector_version }}/vector-{{ vector_version }}-1.x86_64.rpm"
         dest: "./vector-{{ vector_version }}.rpm"
 
     - name: Install Vector
       become: true
-      ansible.builtin.command: >
+      ansible.builtin.command: > 
         yum install -y --nogpgcheck
         vector-{{ vector_version }}.rpm
+     
+     - name: Configure Vector # Подкидываем наш jinja-темплэйт
+      become: true
+      ansible.builtin.template:
+        src: "./templates/vector.yaml.j2"
+        dest: "/etc/vector/vector.yaml"
+        owner: root
+        group: root
+        mode: 0644
+      notify: Restart Vector # Используем хэндлер для рестарта Вектора
