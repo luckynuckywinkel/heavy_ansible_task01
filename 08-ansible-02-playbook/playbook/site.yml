@@ -14,18 +14,42 @@
             url: "https://packages.clickhouse.com/rpm/stable/{{ item }}-{{ clickhouse_version }}.noarch.rpm"
             dest: "./{{ item }}-{{ clickhouse_version }}.rpm"
           with_items: "{{ clickhouse_packages }}"
-      rescue:
-        - name: Get clickhouse distrib
+          
+        - name: Get common-static distrib
           ansible.builtin.get_url:
-            url: "https://packages.clickhouse.com/rpm/stable/clickhouse-common-static-{{ clickhouse_version }}.x86_64.rpm"
-            dest: "./clickhouse-common-static-{{ clickhouse_version }}.rpm"
-    - name: Install clickhouse packages
+            url: "https://packages.clickhouse.com/rpm/stable/{{ item }}-{{ clickhouse_version }}.x86_64.rpm"
+            dest: "./{{ item }}-{{ clickhouse_version }}.rpm"
+            timeout: 300
+          with_items: "{{ common_static }}"
+          
+        - name: get clickhouse GPG-key
+          ansible.builtin.get_url:
+            url: "https://repo.clickhouse.com/CLICKHOUSE-KEY.GPG"
+            dest: "./CLICKHOUSE-KEY.GPG"
+            
+        - name: Import ClickHouse GPG key
+          become: true
+          ansible.builtin.command:
+            cmd: "rpm --import CLICKHOUSE-KEY.GPG"
+      #rescue:
+      #  - name: Get clickhouse distrib
+      #    ansible.builtin.get_url:
+      #      url: "https://packages.clickhouse.com/rpm/stable/clickhouse-common-static-{{ clickhouse_version }}.x86_64.rpm"
+      #      dest: "./clickhouse-common-static-{{ clickhouse_version }}.rpm"
+
+ - name: Install clickhouse packages
       become: true
-      ansible.builtin.yum:
-        name:
-          - clickhouse-common-static-{{ clickhouse_version }}.rpm
-          - clickhouse-client-{{ clickhouse_version }}.rpm
-          - clickhouse-server-{{ clickhouse_version }}.rpm
+      ansible.builtin.command: >
+        yum install -y --nogpgcheck
+        clickhouse-common-static-{{ clickhouse_version }}.rpm
+        clickhouse-client-{{ clickhouse_version }}.rpm
+        clickhouse-server-{{ clickhouse_version }}.rpm
+      #ansible.builtin.yum:
+      #  name:
+      #    - clickhouse-common-static-{{ clickhouse_version }}.rpm
+      #    - clickhouse-client-{{ clickhouse_version }}.rpm
+      #    - clickhouse-server-{{ clickhouse_version }}.rpm
+      #  extra_args: "--nogpgcheck"
       notify: Start clickhouse service
     - name: Flush handlers
       meta: flush_handlers
@@ -34,3 +58,25 @@
       register: create_db
       failed_when: create_db.rc != 0 and create_db.rc !=82
       changed_when: create_db.rc == 0
+
+
+- name: Install Vector
+  hosts: clickhouse
+  become: true
+  handlers:
+    - name: Restart Vector
+      ansible.builtin.service:
+        name: vector
+        state: restarted
+
+  tasks:
+    - name: Get Vector distrib
+      ansible.builtin.get_url:
+        url: "https://packages.timber.io/vector/{{ vector_version }}/vector-{{ vector_version }}-1.x86_64.rpm"
+        dest: "./vector-{{ vector_version }}.rpm"
+
+    - name: Install Vector
+      become: true
+      ansible.builtin.command: >
+        yum install -y --nogpgcheck
+        vector-{{ vector_version }}.rpm
