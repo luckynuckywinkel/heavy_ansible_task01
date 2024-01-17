@@ -30,7 +30,7 @@
 
 - Изначально, я хотел использовать конструкция, которая скачивает и распаковывает пакет с Vector, но потом отказался от этой конструкции, собственно, и lint говорил, что у меня там есть неточности:
 
-  ```
+```
   root@ashost:/home/vagrant/homeworks/08-ansible-02-playbook/playbook# ansible-lint site.yml
 WARNING: PATH altered to include /usr/bin
 [DEPRECATION WARNING]: Ansible will require Python 3.8 or newer on the
