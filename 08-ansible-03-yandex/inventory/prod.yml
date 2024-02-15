@@ -1,0 +1,21 @@
+---
+clickhouse:
+  hosts:
+    clickhouse-01:
+      ansible_host: 158.160.122.93
+      ansible_user: lebedevai
+      ansible_ssh_private_key_file: /home/vagrant/homeworks/08-ansible-02-playbook/playbook/ykey
+
+vector:
+  hosts:
+    vector-01:
+      ansible_host: 51.250.3.42
+      ansible_user: lebedevai
+      ansible_ssh_private_key_file: /home/vagrant/homeworks/08-ansible-02-playbook/playbook/ykey
+
+lighthouse:
+  hosts:
+    lighthouse-01:
+      ansible_host: 62.84.118.14
+      ansible_user: lebedevai
+      ansible_ssh_private_key_file: /home/vagrant/homeworks/08-ansible-02-playbook/playbook/ykey
