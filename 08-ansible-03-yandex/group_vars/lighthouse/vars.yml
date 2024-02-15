@@ -1,0 +1,5 @@
+---
+lighthouse_git: "https://github.com/VKCOM/lighthouse"
+lighthouse_dest: "./lighthouse"
+nginx_user: "root"
+lighthouse_folder: "/home/lebedevai/lighthouse"
