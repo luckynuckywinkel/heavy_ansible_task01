@@ -34,12 +34,6 @@
       #      url: "https://packages.clickhouse.com/rpm/stable/clickhouse-common-static-{{ clickhouse_version }}.x86_64.rpm"
       #      dest: "./clickhouse-common-static-{{ clickhouse_version }}.rpm"
 
-    - name: Check if ClickHouse packages are installed
-      ansible.builtin.shell:
-        cmd: "rpm -q clickhouse-common-static clickhouse-client clickhouse-server"
-      register: clickhouse_packages_status
-      changed_when: false
-
     - name: Install clickhouse packages
       become: true
       ansible.builtin.command: >
@@ -47,7 +41,6 @@
         clickhouse-common-static-{{ clickhouse_version }}.rpm
         clickhouse-client-{{ clickhouse_version }}.rpm
         clickhouse-server-{{ clickhouse_version }}.rpm
-      when: clickhouse_packages_status.rc != 0
       #ansible.builtin.yum:
       #  name:
       #    - clickhouse-common-static-{{ clickhouse_version }}.rpm
@@ -78,19 +71,12 @@
         url: "https://packages.timber.io/vector/{{ vector_version }}/vector-{{ vector_version }}-1.x86_64.rpm"
         dest: "./vector-{{ vector_version }}.rpm"
 
-    - name: Check if Vector package is installed
-      ansible.builtin.shell:
-        cmd: "rpm -q vector"
-      register: vector_package_status
-      changed_when: false
-
     - name: Install Vector
       become: true
       ansible.builtin.command: >
         yum install -y --nogpgcheck
         vector-{{ vector_version }}.rpm
-      when: vector_package_status.rc != 0
-
+      
     - name: Configure Vector
       become: true
       ansible.builtin.template:
