@@ -1,4 +1,4 @@
-# Домашнее задание к занятию 9 «Процессы CI/CD»
+# Домашнее задание к занятию 9 «Процессы CI/CD», Лебедев А.И., fops-10
 
 ## Подготовка к выполнению
 
@@ -10,6 +10,12 @@
 6. Зайдите под admin\admin, поменяйте пароль на свой.
 7.  Проверьте готовность Nexus через [бразуер](http://localhost:8081).
 8. Подключитесь под admin\admin123, поменяйте пароль, сохраните анонимный доступ.
+---  
+
+## Решение:  
+
+- Машины с нужными параметрами были заведены в YC "руками", т.к. на данный момент время заводит терраформом совершенноотсутствует
+- Задание делалось частями и очень долго (не смотря на то, что задание не сложное, инфраструктура развернулась ни с первого раза, но, по итогу, я победил и все необходимое встало на оба хоста).
 
 ## Знакомоство с SonarQube
 
@@ -24,6 +30,32 @@
 7. Исправьте ошибки, которые он выявил, включая warnings.
 8. Запустите анализатор повторно — проверьте, что QG пройдены успешно.
 9. Сделайте скриншот успешного прохождения анализа, приложите к решению ДЗ.
+
+---  
+
+## Решение:  
+
+- Пройдем все пункты по шагам и исправим ошиьки в нашем *.py файле. Исправленный код:
+
+```
+def increment(index):
+    index += 1
+    return index
+def get_square(numb):
+    return numb*numb
+def print_numb(numb):
+    print("Number is {}".format(numb))
+
+index = 0
+while (index < 10):
+    index = increment(index)
+    print(get_square(index))
+```
+
+- Запустим анализатор кода еще раз:
+
+![1](img/sq.png)  
+
 
 ## Знакомство с Nexus
 
@@ -40,6 +72,29 @@
 2. В него же загрузите такой же артефакт, но с version: 8_102.
 3. Проверьте, что все файлы загрузились успешно.
 4. В ответе пришлите файл `maven-metadata.xml` для этого артефекта.
+
+---  
+
+## Решение:  
+
+- Выполним все необходимые действия и выгрузим *.xml-файл в качестве артефакта:
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata modelVersion="1.1.0">
+  <groupId>netology</groupId>
+  <artifactId>java</artifactId>
+  <versioning>
+    <latest>8_282</latest>
+    <release>8_282</release>
+    <versions>
+      <version>8_102</version>
+      <version>8_282</version>
+    </versions>
+    <lastUpdated>20220623090104</lastUpdated>
+  </versioning>
+</metadata>
+```
 
 ### Знакомство с Maven
 
@@ -58,10 +113,35 @@
 3. Проверьте директорию `~/.m2/repository/`, найдите ваш артефакт.
 4. В ответе пришлите исправленный файл `pom.xml`.
 
----
+---  
 
-### Как оформить решение задания
+## Решение:  
 
-Выполненное домашнее задание пришлите в виде ссылки на .md-файл в вашем репозитории.
+- Исправленный pom.xml:
 
----
+```
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+ 
+  <groupId>com.netology.app</groupId>
+  <artifactId>simple-app</artifactId>
+  <version>1.0-SNAPSHOT</version>
+   <repositories>
+    <repository>
+      <id>my-repo</id>
+      <name>maven-public</name>
+      <url>http://158.160.48.110:8081//repository/maven-public/</url>
+    </repository>
+  </repositories>
+  <dependencies>
+    <dependency>
+      <groupId>netology</groupId>
+      <artifactId>java</artifactId>
+      <version>8_282</version>
+      <classifier>distrib</classifier>
+      <type>tar.gz</type>
+    </dependency>
+  </dependencies>
+</project>
+```
