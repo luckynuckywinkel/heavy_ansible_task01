@@ -243,18 +243,16 @@ P.S. if: $CI_PIPELINE_SOURCE == "web" - вот так я сделал потом
 
 ![6](img/7.JPG)  
 
-![7](img/8.JPG)
+![7](img/8.JPG)  
+
+- Ну и ссылка на репу:
+
+[a href] https://gitlab.com/luckynuckywinkel/gitlab_homework [a]   
+
+  
 
 
 
-## Итог
-
-В качестве ответа пришлите подробные скриншоты по каждому пункту задания:
-
-- файл gitlab-ci.yml;
-- Dockerfile; 
-- лог успешного выполнения пайплайна;
-- решённый Issue.
 
 
 
