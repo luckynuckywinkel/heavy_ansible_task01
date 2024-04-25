@@ -52,7 +52,71 @@ test_runner:
 4. Создана директория `/python_api`.
 5. Скрипт из репозитория размещён в /python_api.
 6. Точка вызова: запуск скрипта.
-7. При комите в любую ветку должен собираться docker image с форматом имени hello:gitlab-$CI_COMMIT_SHORT_SHA . Образ должен быть выложен в Gitlab registry или yandex registry.   
+7. При комите в любую ветку должен собираться docker image с форматом имени hello:gitlab-$CI_COMMIT_SHORT_SHA . Образ должен быть выложен в Gitlab registry или yandex registry.
+
+### DevOps часть:  
+
+- Для начала я написал доккерфайл:
+
+```
+FROM centos:7
+
+
+RUN yum update -y && \
+
+    yum install -y python3 python3-pip && \
+    yum clean all && \
+    rm -rf /var/cache/yum
+
+
+
+RUN pip3 install flask
+
+
+RUN mkdir /python_api
+COPY python-api.py /python_api
+
+
+WORKDIR /python_api
+
+
+CMD ["python3", "/python_api/python-api.py"]
+```
+
+- На данном этапе, пайплайн выглядит вот так:
+
+```
+image: docker:latest
+
+variables:
+  DOCKER_TLS_CERTDIR: ""
+  DOCKER_DRIVER: overlay2
+
+stages:
+  - build
+
+before_script:
+  - unset DOCKER_HOST
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+
+build_and_publish_image:
+  stage: build
+  script:
+    - docker build --build-arg PYTHON_VERSION=3.7 -t $CI_REGISTRY_IMAGE:gitlab-$CI_COMMIT_SHORT_SHA .
+    - docker push $CI_REGISTRY_IMAGE:gitlab-$CI_COMMIT_SHORT_SHA
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+  tags:
+    - netology
+```
+
+- Пришлось подкрутить кое-какие настройки доккера на раннере, но все вышло. Пайп проходит, продукт падает в реджистри гитлаба:
+
+![3](img/4.JPG)  
+
+![4](img/5.JPG)
+
+
 
 ### Product Owner
 
