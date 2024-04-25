@@ -217,7 +217,7 @@ P.S. if: $CI_PIPELINE_SOURCE == "web" - вот так я сделал потом
 
 ![6](img/7.JPG)  
 
-![7(img/8.JPG)
+![7](img/8.JPG)
 
 
 
