@@ -126,6 +126,12 @@ build_and_publish_image:
 2. Текст с `{ "message": "Already started" }` на `{ "message": "Running"}`.
 3. Issue поставить label: feature.
 
+### Product Owner часть:  
+
+- Создадим Issue и опишем его:
+
+![5](img/6.JPG)
+
 ### Developer
 
 Пришёл новый Issue на доработку, вам нужно:
@@ -134,6 +140,12 @@ build_and_publish_image:
 2. Внести изменения по тексту из задания.
 3. Подготовить Merge Request, влить необходимые изменения в `master`, проверить, что сборка прошла успешно.
 
+### Developer часть:    
+
+- Все было сделано. + увидел некоторые косяки, что не заметил до этого и тоже исправил.
+
+
+
 
 ### Tester
 
@@ -141,6 +153,73 @@ build_and_publish_image:
 
 1. Поднять докер-контейнер с образом `python-api:latest` и проверить возврат метода на корректность.
 2. Закрыть Issue с комментарием об успешности прохождения, указав желаемый результат и фактически достигнутый.
+
+### Tester часть:    
+
+- Дополнил пайплайн. Добавил несколько джоб. Первая - просто делает сборку при запросе на МР. Вторая - собирает и тестит поменялись ли в итоге значения:
+
+```
+image: docker:latest
+
+variables:
+  DOCKER_TLS_CERTDIR: ""
+  DOCKER_DRIVER: overlay2
+
+stages:
+  - test
+  - pre_merge_build
+  - build
+   
+pre_merge_build:
+  stage: pre_merge_build
+  image: docker    
+  script:
+    - docker build --build-arg PYTHON_VERSION=3.7 -t $CI_REGISTRY_IMAGE/gitlab-$CI_COMMIT_SHORT_SHA:latest .
+  rules:
+    - if: '$CI_COMMIT_BRANCH != "main" && $CI_PIPELINE_SOURCE == "merge_request_event"'
+  tags:
+    - netology
+
+test_image:
+  stage: test
+  image: docker
+  before_script:
+    - apk add --update curl && rm -rf /var/cache/apk/*
+  script:
+    - docker build --build-arg PYTHON_VERSION=3.7 -t $CI_REGISTRY_IMAGE/gitlab-$CI_COMMIT_SHORT_SHA:latest .
+    - docker run -d -p 5290:5290 $CI_REGISTRY_IMAGE/gitlab-$CI_COMMIT_SHORT_SHA:latest
+    - sleep 10
+    - curl http://178.154.225.231:5290/get_info 
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+  tags:
+    - netology
+  
+build_and_publish_image:
+  stage: build
+  before_script:
+    - unset DOCKER_HOST
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build --build-arg PYTHON_VERSION=3.7 -t $CI_REGISTRY_IMAGE:gitlab-$CI_COMMIT_SHORT_SHA .
+    - docker push $CI_REGISTRY_IMAGE:gitlab-$CI_COMMIT_SHORT_SHA
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: manual
+  tags:
+    - netology
+  needs:
+    - job: test_image
+```
+
+P.S. if: $CI_PIPELINE_SOURCE == "web" - вот так я сделал потому что перемудрил с условиями и уже очень торопился и джоба тупила страшно,что пришлось аж прописать внешний ip раннера, т.к. по локалхосту не достукивалось.  
+Собственно, тут должны были быть условия, что при завершенном МР в ветку main оно стартует.  
+
+![6](img/7.JPG)  
+
+![7(img/8.JPG)
+
+
 
 ## Итог
 
@@ -151,6 +230,5 @@ build_and_publish_image:
 - лог успешного выполнения пайплайна;
 - решённый Issue.
 
-### Важно 
-После выполнения задания выключите и удалите все задействованные ресурсы в Yandex Cloud.
+
 
