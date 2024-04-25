@@ -143,6 +143,32 @@ build_and_publish_image:
 ### Developer часть:    
 
 - Все было сделано. + увидел некоторые косяки, что не заметил до этого и тоже исправил.
+- Dockerfile теперь выглядит вот так:
+
+```
+ROM centos:7
+
+
+RUN yum update -y && \
+
+    yum install -y python3 python3-pip && \
+    yum clean all && \
+    rm -rf /var/cache/yum
+
+
+
+RUN pip3 install flask flask_restful flask_jsonpify
+
+
+RUN mkdir /python_api
+COPY python-api.py /python_api
+
+
+WORKDIR /python_api
+
+EXPOSE 5290
+CMD ["python3", "/python_api/python-api.py"]
+```
 
 
 
