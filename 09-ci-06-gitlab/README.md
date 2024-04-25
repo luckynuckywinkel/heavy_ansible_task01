@@ -247,7 +247,11 @@ P.S. if: $CI_PIPELINE_SOURCE == "web" - вот так я сделал потом
 
 - Ну и ссылка на репу:
 
-[a href] https://gitlab.com/luckynuckywinkel/gitlab_homework [a]   
+https://gitlab.com/luckynuckywinkel/gitlab_homework   
+
+Раннер на YC я убил, если что.  
+
+---
 
   
 
