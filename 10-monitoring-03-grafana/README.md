@@ -28,7 +28,7 @@ docker ps -a
 
 Создайте Dashboard и в ней создайте Panels:
 
-- утилизация CPU для nodeexporter (в процентах, 100-idle);
+- утилизация CPU для nodeexporter (в процентах, 100-idle):
 
 ```
 avg without (cpu)(irate(node_cpu_seconds_total{job="nodeexporter",mode="idle"}[1m]))
