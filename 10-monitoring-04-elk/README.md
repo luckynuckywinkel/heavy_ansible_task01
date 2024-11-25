@@ -1,25 +1,4 @@
-# Домашнее задание к занятию 15 «Система сбора логов Elastic Stack»
-
-## Дополнительные ссылки
-
-При выполнении задания используйте дополнительные ресурсы:
-
-- [поднимаем elk в docker](https://www.elastic.co/guide/en/elastic-stack-get-started/current/get-started-docker.html);
-- [поднимаем elk в docker с filebeat и docker-логами](https://www.sarulabs.com/post/5/2019-08-12/sending-docker-logs-to-elasticsearch-and-kibana-with-filebeat.html);
-- [конфигурируем logstash](https://www.elastic.co/guide/en/logstash/current/configuration.html);
-- [плагины filter для logstash](https://www.elastic.co/guide/en/logstash/current/filter-plugins.html);
-- [конфигурируем filebeat](https://www.elastic.co/guide/en/beats/libbeat/5.3/config-file-format.html);
-- [привязываем индексы из elastic в kibana](https://www.elastic.co/guide/en/kibana/current/index-patterns.html);
-- [как просматривать логи в kibana](https://www.elastic.co/guide/en/kibana/current/discover.html);
-- [решение ошибки increase vm.max_map_count elasticsearch](https://stackoverflow.com/questions/42889241/how-to-increase-vm-max-map-count).
-
-В процессе выполнения в зависимости от системы могут также возникнуть не указанные здесь проблемы.
-
-Используйте output stdout filebeat/kibana и api elasticsearch для изучения корня проблемы и её устранения.
-
-## Задание повышенной сложности
-
-Не используйте директорию [help](./help) при выполнении домашнего задания.
+# Домашнее задание к занятию 15 «Система сбора логов Elastic Stack», Лебедев А.И., FOPS-10.
 
 ## Задание 1
 
@@ -44,6 +23,22 @@ Filebeat следует сконфигурировать для отправки
 - docker-compose манифест (если вы не использовали директорию help);
 - ваши yml-конфигурации для стека (если вы не использовали директорию help).
 
+## Выполнение:    
+
+ - За основу возьмем задание из первой части обучения по подъему ELK-стэка. Развернем все это дело на YC:
+
+![1](img/1.png)    
+
+ - закомментируем контейнер some_apps ввиду того, что в версии python.
+ - обновим версии ПО elasticsearch, logstash, kibana и filebeat с 8.7.0 до 8.12.2.
+ - запустим все контейнеры:
+
+ ![2](img/2.png)  
+
+ - зайдем в Кибану:
+
+ ![3](img/3.png)
+
 ## Задание 2
 
 Перейдите в меню [создания index-patterns  в kibana](http://localhost:5601/app/management/kibana/indexPatterns/create) и создайте несколько index-patterns из имеющихся.
@@ -51,14 +46,21 @@ Filebeat следует сконфигурировать для отправки
 Перейдите в меню просмотра логов в kibana (Discover) и самостоятельно изучите, как отображаются логи и как производить поиск по логам.
 
 В манифесте директории help также приведенно dummy-приложение, которое генерирует рандомные события в stdout-контейнера.
-Эти логи должны порождать индекс logstash-* в elasticsearch. Если этого индекса нет — воспользуйтесь советами и источниками из раздела «Дополнительные ссылки» этого задания.
+Эти логи должны порождать индекс logstash-* в elasticsearch. Если этого индекса нет — воспользуйтесь советами и источниками из раздела  
+«Дополнительные ссылки» этого задания.  
+
+## Выполнение:  
+
+- В соответствие с использованием версии 8.12.2, в которой меню отличается, index-pattern создаем в меню data-view и выполняем все остальные задачи:
+
+![4](img/4.png)  
+
+![5](img/5.png)  
+
+![6](img/6.png)
  
 ---
 
-### Как оформить решение задания
 
-Выполненное домашнее задание пришлите в виде ссылки на .md-файл в вашем репозитории.
-
----
 
  
